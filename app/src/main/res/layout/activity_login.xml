@@ -50,7 +50,7 @@
             <ImageView
                 android:layout_width="150dp"
                 android:layout_height="150dp"
-                android:src="@drawable/a"
+                android:src="@drawable/logo"
                 android:id="@+id/logo"/>
 
             <!--            <TextView-->
@@ -142,7 +142,6 @@
                             android:layout_height="match_parent"
                             android:background="@drawable/ripple_white"
                             android:ems="15"
-                            android:onClick="loginButton"
                             android:text="Login"
                             android:textAllCaps="false"
                             android:textColor="@color/white"
