@@ -15,6 +15,9 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -59,7 +62,7 @@ public class CheckEcgActivity extends AppCompatActivity {
         });
 // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("sensor/ecg");
+        DatabaseReference myRef = database.getReference(MD5(getIntent().getStringExtra("id"))+"/sensor/ecg");
 // Read from the database
         final DataPoint[] dataPoints={};
         myRef.addChildEventListener(new ChildEventListener() {
@@ -67,10 +70,14 @@ public class CheckEcgActivity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 ECG value = dataSnapshot.getValue(ECG.class);
                 Log.d("TAG", "Value is: " + value.getEcg());
-                graphLastXValue += 2.00d;
-                series.appendData(new DataPoint(graphLastXValue, Double.parseDouble(value.getEcg().trim().isEmpty()?"0":value.getEcg())), true, 500);
-                graph.getViewport().scrollToEnd();
+                if ( MD5(value.getEcg()+getIntent().getStringExtra("id").substring(0,7)).equals(value.getHash())) {
+                    for (int i = 1; i < value.getEcg().split(",").length-1; i++) {
+                        graphLastXValue += 2.00d;
+                        series.appendData(new DataPoint(graphLastXValue, Double.parseDouble(value.getEcg().split(",")[i].trim().isEmpty() ? "0" : value.getEcg().split(",")[i])), true, 500);
+                        graph.getViewport().scrollToEnd();
+                    }
 
+                }
             }
 
             @Override
@@ -95,4 +102,18 @@ public class CheckEcgActivity extends AppCompatActivity {
         });
 
     }
+    public String MD5(String md5) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] array = md.digest(md5.getBytes());
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < array.length; ++i) {
+                sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+        }
+        return null;
     }
+
+}

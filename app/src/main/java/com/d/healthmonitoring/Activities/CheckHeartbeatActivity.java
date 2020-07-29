@@ -4,16 +4,21 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.d.healthmonitoring.Model.BPM;
+import com.d.healthmonitoring.Model.GPS;
 import com.d.healthmonitoring.R;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.gson.Gson;
 import com.jjoe64.graphview.DefaultLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -59,18 +64,20 @@ public class CheckHeartbeatActivity extends AppCompatActivity {
         });
 // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("sensor/BMP");
+        DatabaseReference myRef = database.getReference(MD5(getIntent().getStringExtra("id"))+"/sensor/BMP");
 // Read from the database
         final DataPoint[] dataPoints={};
         myRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                BPM value = dataSnapshot.getValue(BPM.class);
+                BPM value = new Gson().fromJson(new Gson().toJson( dataSnapshot.getValue()),BPM.class);
                 Log.d("TAG", "Value is: " + value.getBPM());
-                graphLastXValue += 2.00d;
-                series.appendData(new DataPoint(graphLastXValue, Double.parseDouble((value.getBPM()==null)?"0":value.getBPM())), true, 500);
-                graph.getViewport().scrollToEnd();
+                if ( MD5(value.getBPM()+getIntent().getStringExtra("id").substring(0,7)).equals(value.getHash())) {
 
+                    graphLastXValue += 2.00d;
+                    series.appendData(new DataPoint(graphLastXValue, Double.parseDouble((value.getBPM() .equals("")) ? "0" : value.getBPM())), true, 500);
+                    graph.getViewport().scrollToEnd();
+                }
             }
 
             @Override
@@ -95,5 +102,21 @@ public class CheckHeartbeatActivity extends AppCompatActivity {
         });
 
     }
+    public String MD5(String md5) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] array = md.digest(md5.getBytes());
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < array.length; ++i) {
+                sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+            }
+            Log.d("TAG"+md5, "HASH " + sb.toString());
+
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+        }
+        return null;
     }
+
+}
 

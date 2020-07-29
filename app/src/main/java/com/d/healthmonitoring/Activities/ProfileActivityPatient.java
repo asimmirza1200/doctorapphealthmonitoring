@@ -8,18 +8,23 @@ import android.widget.TextView;
 
 import com.d.healthmonitoring.Model.AssignData;
 import com.d.healthmonitoring.R;
+import com.google.android.gms.common.SignInButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class ProfileActivityPatient extends AppCompatActivity {
 
     Button temp,heartbeat,ecg, addmedicine,checkmedicine;
+    private Button checklocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_patient);
         temp=(Button)findViewById(R.id.temp);
         heartbeat=(Button)findViewById(R.id.heart);
+        checklocation=(Button)findViewById(R.id.checklocation);
+
         ecg=(Button)findViewById(R.id.ecg);
         addmedicine =(Button)findViewById(R.id.addmedicine);
         checkmedicine =(Button)findViewById(R.id.checkmedicine);
@@ -45,6 +50,17 @@ public class ProfileActivityPatient extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent =new Intent(ProfileActivityPatient.this, CheckHeartbeatActivity.class);
+                intent.putExtra("id",assignData.getPatientData().getDeviceid());
+
+                startActivity(intent);
+            }
+        });
+        checklocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent =new Intent(ProfileActivityPatient.this, MapsActivity.class);
+                intent.putExtra("id",assignData.getPatientData().getDeviceid());
+
                 startActivity(intent);
             }
         });
@@ -52,13 +68,18 @@ public class ProfileActivityPatient extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent1 =new Intent(ProfileActivityPatient.this, CheckEcgActivity.class);
+                intent1.putExtra("id",assignData.getPatientData().getDeviceid());
+
                 startActivity(intent1);
             }
         });
         temp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent2 =new Intent(ProfileActivityPatient.this, CheckTemperatureActivity.class);
+                intent2.putExtra("id",assignData.getPatientData().getDeviceid());
+
                 startActivity(intent2);
             }
         });

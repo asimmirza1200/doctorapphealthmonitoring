@@ -10,9 +10,19 @@ public class BPM {
     @SerializedName("Time")
     @Expose
     private String time;
-
+    @SerializedName("hash")
+    @Expose
+    private String hash;
     public String getBPM() {
         return bPM;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
     }
 
     public void setBPM(String bPM) {

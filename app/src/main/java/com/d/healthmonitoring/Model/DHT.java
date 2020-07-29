@@ -13,9 +13,19 @@ public class DHT {
     @SerializedName("time")
     @Expose
     private String time;
-
+    @SerializedName("hash")
+    @Expose
+    private String hash;
     public Double getHumidity() {
         return humidity;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
     }
 
     public void setHumidity(Double humidity) {

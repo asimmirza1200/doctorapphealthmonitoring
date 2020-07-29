@@ -13,7 +13,9 @@ public class GPS {
     @SerializedName("time")
     @Expose
     private String time;
-
+    @SerializedName("hash")
+    @Expose
+    private String hash;
     public Double getLatitude() {
         return latitude;
     }
@@ -32,6 +34,14 @@ public class GPS {
 
     public String getTime() {
         return time;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
     }
 
     public void setTime(String time) {

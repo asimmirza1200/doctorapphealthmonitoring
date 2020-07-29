@@ -15,4 +15,5 @@
     <string name="menu_send_massage">SendMassage</string>
     <string name="menu_alert_notification">AlertNotification</string>
     <string name="home_second">Home Second</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
