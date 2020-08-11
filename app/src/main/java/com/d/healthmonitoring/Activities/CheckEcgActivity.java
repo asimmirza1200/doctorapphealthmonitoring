@@ -1,6 +1,8 @@
 package com.d.healthmonitoring.Activities;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 
 import com.d.healthmonitoring.Model.ECG;
@@ -28,7 +30,27 @@ public class CheckEcgActivity extends AppCompatActivity {
 
     private LineGraphSeries<DataPoint> series;
     int i=0;
+    private ProgressDialog dialog;
 
+    public void setUpProgressDialog() {
+        dialog = new ProgressDialog(this);
+        dialog.setCancelable(false);
+    }
+
+    public void showProgressDialog(String title, String msg) {
+        dialog.setTitle(title);
+        dialog.setMessage(msg);
+        dialog.show();
+    }
+
+    public void showProgressDialog(String title) {
+        dialog.setTitle(title);
+        dialog.show();
+    }
+
+    public void dismissProgressDialog() {
+        dialog.dismiss();
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,19 +87,24 @@ public class CheckEcgActivity extends AppCompatActivity {
         DatabaseReference myRef = database.getReference(MD5(getIntent().getStringExtra("id"))+"/sensor/ecg");
 // Read from the database
         final DataPoint[] dataPoints={};
-        myRef.addChildEventListener(new ChildEventListener() {
+//        setUpProgressDialog();
+//        showProgressDialog("Please Waite","Graph is loading");
+        myRef.limitToLast(50).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                ECG value = dataSnapshot.getValue(ECG.class);
+                final ECG value = dataSnapshot.getValue(ECG.class);
                 Log.d("TAG", "Value is: " + value.getEcg());
                 if ( MD5(value.getEcg()+getIntent().getStringExtra("id").substring(0,7)).equals(value.getHash())) {
                     for (int i = 1; i < value.getEcg().split(",").length-1; i++) {
                         graphLastXValue += 2.00d;
-                        series.appendData(new DataPoint(graphLastXValue, Double.parseDouble(value.getEcg().split(",")[i].trim().isEmpty() ? "0" : value.getEcg().split(",")[i])), true, 500);
-                        graph.getViewport().scrollToEnd();
+                        final int finalI = i;
+                         series.appendData(new DataPoint(graphLastXValue, Double.parseDouble(value.getEcg().split(",")[finalI].trim().isEmpty() ? "0" : value.getEcg().split(",")[finalI])), true, 500);
+                         graph.getViewport().scrollToEnd();
+
                     }
 
                 }
+
             }
 
             @Override
